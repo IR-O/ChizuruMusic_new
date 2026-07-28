@@ -1,31 +1,77 @@
 import pydub
-from pyrogram import filters
 from Chizuru import Chizuru
+from pyrogram import filters
 
-@Chizuru.on_message(filters.command(["bass"], prefixes=["/", "."]))
-async def add_bass(_, message):
-    if not message.reply_to_message or not message.reply_to_message.audio:
-        await message.reply_text("❌ Reply to an audio file.")
-        return
-    
-    msg = await message.reply_text("⏳ Processing...")
-    audio = await message.reply_to_message.download()
-    audio_segment = pydub.AudioSegment.from_file(audio)
-    enhanced = audio_segment + 10
-    enhanced.export("bass.mp3", format="mp3")
-    await message.reply_audio("bass.mp3")
-    await msg.delete()
 
-@Chizuru.on_message(filters.command(["loudly"], prefixes=["/", "."]))
-async def make_louder(_, message):
-    if not message.reply_to_message or not message.reply_to_message.audio:
-        await message.reply_text("❌ Reply to an audio file.")
-        return
-    
-    msg = await message.reply_text("⏳ Processing...")
-    audio = await message.reply_to_message.download()
-    audio_segment = pydub.AudioSegment.from_file(audio)
-    enhanced = audio_segment + 15
-    enhanced.export("loud.mp3", format="mp3")
-    await message.reply_audio("loud.mp3")
-    await msg.delete()
+
+@Chizuru.on_message(filters.command("bass") & filters.reply)
+async def download_and_enhance_audio(client, message):
+    try:
+        reply_message = message.reply_to_message
+
+        if reply_message.audio:
+            msg = await message.reply("processing")
+            audio = await reply_message.download()
+            audio_segment = pydub.AudioSegment.from_file(audio)
+            await msg.edit("now adding bass and uploading...")
+            
+            enhanced_audio = audio_segment + 10           
+            enhanced_audio.export("chizuru.mp3", format="mp3")
+            await msg.delete()
+            await message.reply_audio("chizuru.mp3")
+        else:
+            await message.reply("The replied message is not an audio.")
+    except Exception as e:
+        await message.reply(f"An error occurred: {str(e)}")
+
+
+
+
+
+@Chizuru.on_message(filters.command("loudly") & filters.reply)
+async def download_and_enhance_audio(client, message):
+    try:
+        reply_message = message.reply_to_message
+
+        if reply_message.audio:
+            msg = await message.reply("processing")
+            audio = await reply_message.download()
+            audio_segment = pydub.AudioSegment.from_file(audio)
+            await msg.edit("now adding loude audio and uploading...")
+        
+            louder_audio = audio_segment + 10
+            
+            louder_audio.export("chizuru.mp3", format="mp3")
+            await msg.delete()
+            await message.reply_audio("chizuru.mp3")
+        else:
+            await message.reply("The replied message is not an audio.")
+    except Exception as e:
+        await message.reply(f"An error occurred: {str(e)}")
+
+
+
+
+
+@Chizuru.on_message(filters.command("mono") & filters.reply)
+async def split_stereo_and_send_audio(client, message):
+    try:
+        reply_message = message.reply_to_message
+
+        if reply_message.audio:
+            msg = await message.reply("processing")
+            a = pydub.AudioSegment.from_file(await reply_message.download())
+            b = a.split_to_mono()
+            mono_audio = b[0]
+            await msg.edit("now adding mono audio and uploading...")
+            
+            mono_audio.export("chizuru.mp3", format="mp3")
+            await msg.delete()
+            await message.reply_audio("chizuru.mp3")
+        else:
+            await message.reply("The replied message is not an audio.")
+    except Exception as e:
+        await message.reply(f"An error occurred: {str(e)}")
+
+
+              

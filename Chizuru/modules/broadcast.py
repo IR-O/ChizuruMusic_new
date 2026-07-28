@@ -1,71 +1,100 @@
 import asyncio
-from pyrogram import filters
-from pyrogram.errors import FloodWait
-
-from Chizuru import Chizuru
 from config import OWNER_ID
-from Chizuru.core.mongo import get_users, get_chats
+from pyrogram import *
+from pyrogram.types import *
+from Chizuru import Chizuru
+from Chizuru.core.mongo import *
 
 
-@Chizuru.on_message(
-    filters.command(["broadcast"], prefixes=["/", "."])
-    & filters.user(OWNER_ID)
-)
+
+
+
+
+async def send_msg(user_id, message):
+    try:
+        await message.copy(chat_id=user_id)
+    except FloodWait as e:
+        await asyncio.sleep(e.x)
+        return send_msg(user_id, message)
+    except InputUserDeactivated:
+        return 400, f"{user_id} : deactivated\n"
+    except UserIsBlocked:
+        return 400, f"{user_id} : blocked the bot\n"
+    except PeerIdInvalid:
+        return 400, f"{user_id} : user id invalid\n"
+    except Exception:
+        return 500, f"{user_id} : {traceback.format_exc()}\n"
+
+
+@Chizuru.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
 async def broadcast(_, message):
-
     if not message.reply_to_message:
-        return await message.reply_text(
-            "❌ Reply to a message to broadcast."
+        await message.reply_text("ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀsᴛ ɪᴛ.")
+        return    
+    exmsg = await message.reply_text("sᴛᴀʀᴛᴇᴅ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ!")
+    all_chats = (await get_chats()) or {}
+    all_users = (await get_users()) or {}
+    done_chats = 0
+    done_users = 0
+    failed_chats = 0
+    failed_users = 0
+    for chat in all_chats:
+        try:
+            await send_msg(chat, message.reply_to_message)
+            done_chats += 1
+            await asyncio.sleep(0.1)
+        except Exception:
+            pass
+            failed_chats += 1
+
+    for user in all_users:
+        try:
+            await send_msg(user, message.reply_to_message)
+            done_users += 1
+            await asyncio.sleep(0.1)
+        except Exception:
+            pass
+            failed_users += 1
+    if failed_users == 0 and failed_chats == 0:
+        await exmsg.edit_text(
+            f"**sᴜᴄᴄᴇssғᴜʟʟʏ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ✅**\n\n**sᴇɴᴛ ᴍᴇssᴀɢᴇ ᴛᴏ** `{done_chats}` **ᴄʜᴀᴛs ᴀɴᴅ** `{done_users}` **ᴜsᴇʀs**",
+        )
+    else:
+        await exmsg.edit_text(
+            f"**sᴜᴄᴄᴇssғᴜʟʟʏ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ✅**\n\n**sᴇɴᴛ ᴍᴇssᴀɢᴇ ᴛᴏ** `{done_chats}` **ᴄʜᴀᴛs** `{done_users}` **ᴜsᴇʀs**\n\n**ɴᴏᴛᴇ:-** `ᴅᴜᴇ ᴛᴏ sᴏᴍᴇ ɪssᴜᴇ ᴄᴀɴ'ᴛ ᴀʙʟᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀsᴛ` `{failed_users}` **ᴜsᴇʀs ᴀɴᴅ** `{failed_chats}` **ᴄʜᴀᴛs**",
         )
 
-    status = await message.reply_text(
-        "⏳ Broadcasting started..."
-    )
 
-    users = await get_users()
-    chats = await get_chats()
 
-    success = 0
+
+
+@Chizuru.on_message(filters.command("announce") & filters.user(OWNER_ID))
+async def announced(_, message):
+    if message.reply_to_message:
+      to_send=message.reply_to_message.id
+    if not message.reply_to_message:
+      return await message.reply_text("Reply To Some Post To Broadcast")
+    chats = await get_chats() or []
+    users = await get_users() or []
+    print(chats)
+    print(users)
     failed = 0
-
-
-    # Users Broadcast
-    for user in users:
-        try:
-            await message.reply_to_message.copy(
-                user["_id"] if isinstance(user, dict) else user
-            )
-            success += 1
-            await asyncio.sleep(0.2)
-
-        except FloodWait as e:
-            await asyncio.sleep(e.value)
-
-        except Exception:
-            failed += 1
-
-
-    # Chats Broadcast
     for chat in chats:
-        try:
-            await message.reply_to_message.copy(
-                chat["_id"] if isinstance(chat, dict) else chat
-            )
-            success += 1
-            await asyncio.sleep(0.2)
+      try:
+        await _.forward_messages(chat_id=int(chat), from_chat_id=message.chat.id, message_ids=to_send)
+        await asyncio.sleep(1)
+      except Exception:
+        failed += 1
+    
+    failed_user = 0
+    for user in users:
+      try:
+        await _.forward_messages(chat_id=int(user), from_chat_id=message.chat.id, message_ids=to_send)
+        await asyncio.sleep(1)
+      except Exception as e:
+        failed_user += 1
 
-        except FloodWait as e:
-            await asyncio.sleep(e.value)
 
-        except Exception:
-            failed += 1
+    await message.reply_text("Broadcast complete. {} groups failed to receive the message, probably due to being kicked. {} users failed to receive the message, probably due to being banned.".format(failed, failed_user))
 
 
-    await status.edit_text(
-        f"""
-✅ Broadcast Completed
-
-👤 Success: {success}
-❌ Failed: {failed}
-"""
-    )
