@@ -1,52 +1,51 @@
+import asyncio
 import logging
-
-from pyrogram import Client
 from pytgcalls import PyTgCalls
+from pyrogram import Client
+from config import API_ID, API_HASH, BOT_TOKEN, SESSION_STRING
 
-from config import (
-    API_ID,
-    API_HASH,
-    BOT_TOKEN,
-    SESSION_STRING
-)
 
+loop = asyncio.get_event_loop()
 
 logging.basicConfig(
+    format="[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s",
     level=logging.INFO,
-    format="[%(levelname)s] %(message)s"
 )
+
 
 
 Chizuru = Client(
-    "ChizuruBot",
+    ":Chizuru:",
     api_id=API_ID,
     api_hash=API_HASH,
-    bot_token=BOT_TOKEN
+    bot_token=BOT_TOKEN,
 )
 
-
-assistant = Client(
-    "ChizuruAssistant",
+userbot = Client(
+    ":userbot:",
     api_id=API_ID,
     api_hash=API_HASH,
-    session_string=SESSION_STRING
+    session_string=SESSION_STRING,
 )
 
-
-pytgcalls = PyTgCalls(assistant)
-
-
-SUDOERS = set()
+pytgcalls = PyTgCalls(userbot)
 
 
-async def start_services():
 
+async def chizuru_music():
+    global BOT_ID, BOT_NAME, BOT_USERNAME
     await Chizuru.start()
-
-    await assistant.start()
-
+    await userbot.start()
     await pytgcalls.start()
+    getme = await Chizuru.get_me()
+    BOT_ID = getme.id
+    BOT_USERNAME = getme.username
+    if getme.last_name:
+        BOT_NAME = getme.first_name + " " + getme.last_name
+    else:
+        BOT_NAME = getme.first_name
 
-    logging.info(
-        "Chizuru Music Bot Started Successfully"
-    )
+
+loop.run_until_complete(chizuru_music())
+
+

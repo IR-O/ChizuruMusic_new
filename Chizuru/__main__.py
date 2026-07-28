@@ -1,43 +1,20 @@
 import asyncio
 import importlib
-import os
+from pyrogram import idle
+from Chizuru.modules import ALL_MODULES
 
-from Chizuru import start_services
+ 
 
-
-async def main():
-
-    await start_services()
+loop = asyncio.get_event_loop()
 
 
-    modules_path = "Chizuru/modules"
-
-
-    for file in os.listdir(modules_path):
-
-        if (
-            file.endswith(".py")
-            and file != "__init__.py"
-        ):
-
-            module = file[:-3]
-
-            importlib.import_module(
-                f"Chizuru.modules.{module}"
-            )
-
-
-    logging_message = (
-        "All Modules Loaded Successfully"
-    )
-
-    print(logging_message)
-
-
-    await asyncio.Event().wait()
-
+async def sumit_boot():
+    for all_module in ALL_MODULES:
+        importlib.import_module("Chizuru.modules." + all_module)
+    print("»»»» ʜᴇʀᴏᴋᴏ ʀᴏʙᴏᴛ ᴅᴇᴘʟᴏʏ sᴜᴄᴄᴇssғᴜʟʟʏ ✨ 🎉")
+    await idle()
+    print("»» ɢᴏᴏᴅ ʙʏᴇ ! sᴛᴏᴘᴘɪɴɢ ʙᴏᴛ.")
 
 
 if __name__ == "__main__":
-
-    asyncio.run(main())
+    loop.run_until_complete(sumit_boot())
