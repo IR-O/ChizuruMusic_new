@@ -34,7 +34,7 @@ async def chizuru_music():
     BOT_ID = getme.id
     BOT_USERNAME = getme.username
     BOT_NAME = getme.first_name + (" " + getme.last_name if getme.last_name else "")
-    logging.info(f"Bot started as @{BOT_USERNAME} (ID: {BOT_ID})")
+    logging.info(f"Bot started as @{BOT_USERNAME}")
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
