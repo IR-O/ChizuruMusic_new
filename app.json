@@ -1,62 +1,49 @@
 {
-  "name": "Chizuru Music",
-  "description": "A Telegram Music Player Bot",
-  "logo": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg",
-  "keywords": [
-    "python",
-    "telegram",
-    "music",
-    "bot"
-  ],
-  "env": {
-    "API_ID": {
-      "description": "Get from my.telegram.org",
-      "required": true
+    "name": "Chizuru Music",
+    "description": "A Telegram Music Player Bot, written in Python with Pyrogram and Py-Tgcalls.",
+    "logo": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg",
+    "keywords": ["python3","telegram","MusicBot","telegram-bot","pyrogram"],
+    "stack": "container",
+    "env": {    
+        "BOT_TOKEN": {
+            "description": "A Bot's token from Botfather",
+            "value": "",
+            "required": true
+        },
+        "MONGO_URL": {
+            "description": "Get a mongodb url from https://cloud.mongodb.com.",
+            "value": "",
+            "required": true
+        },
+        "OWNER_ID": {
+            "description": "The user id of user whom you would like to add as OWNER.",
+            "value": "",
+            "required": true
+        },
+        "SESSION_STRING": {
+            "description": "A Pyrogram v2 String Session.",
+            "value": "",
+            "required": true
+        },
+        "SUDO_USERS": {
+            "description": "Brother Here fill your friends user id ex 12334 23445",
+            "value": "",
+            "required": true
+        }
     },
-    "API_HASH": {
-      "description": "Get from my.telegram.org",
-      "required": true
-    },
-    "BOT_TOKEN": {
-      "description": "Get from @BotFather",
-      "required": true
-    },
-    "SESSION_STRING": {
-      "description": "Pyrogram v2 session",
-      "required": true
-    },
-    "MONGO_URL": {
-      "description": "MongoDB Atlas URL",
-      "required": true
-    },
-    "LOG_GROUP_ID": {
-      "description": "Telegram log group ID",
-      "required": true
-    },
-    "OWNER_ID": {
-      "description": "Your Telegram ID",
-      "required": true
-    },
-    "SUDO_USERS": {
-      "description": "Sudo users",
-      "required": false
-    },
-    "DURATION_LIMIT": {
-      "description": "Max song duration",
-      "value": "300"
-    },
-    "START_IMG_URL": {
-      "description": "Start image",
-      "value": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg"
-    }
-  },
-  "buildpacks": [
-    {
-      "url": "heroku/python"
-    },
-    {
-      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
-    }
-  ],
-  "stack": "heroku-24"
+    "addons": [
+        "heroku-postgresql"
+    ],
+    "buildpacks": [
+        {
+            "url": "heroku/python"
+        },
+        {
+            "url": "heroku/nodejs"
+        },
+        {
+            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+        }
+    ]
 }
+
