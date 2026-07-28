@@ -2,7 +2,6 @@ import os
 import yt_dlp
 from asyncio import Queue, QueueEmpty
 
-DURATION_LIMIT = 300
 queues = {}
 
 async def put(chat_id: int, **kwargs) -> int:
@@ -45,18 +44,3 @@ async def get_audio_stream(link):
         return audio
     x.download([link])
     return audio
-
-async def get_video_stream(link):
-    opts = {
-        "format": "bestvideo+bestaudio/best",
-        "outtmpl": "downloads/%(id)s.%(ext)s",
-        "quiet": True,
-        "no_warnings": True,
-    }
-    x = yt_dlp.YoutubeDL(opts)
-    info = x.extract_info(link, False)
-    video = os.path.join("downloads", f"{info['id']}.{info['ext']}")
-    if os.path.exists(video):
-        return video
-    x.download([link])
-    return video
