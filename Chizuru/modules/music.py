@@ -1,8 +1,6 @@
-import os
-import requests
-
 from pyrogram import filters
 from pyrogram.types import Message
+
 from youtube_search import YoutubeSearch
 
 from Chizuru import Chizuru, pytgcalls
@@ -14,6 +12,7 @@ from Chizuru.core.utils import (
     task_done
 )
 
+
 from pytgcalls.types import (
     AudioPiped,
     AudioQuality,
@@ -22,166 +21,128 @@ from pytgcalls.types import (
 )
 
 
-DURATION_LIMIT = 300
-
-
-@Chizuru.on_message(filters.command(["play"], prefixes=["/", "."]))
+@Chizuru.on_message(
+    filters.command(
+        ["play"],
+        prefixes=["/", "."]
+    )
+)
 async def play(_, message: Message):
-    query = " ".join(message.command[1:])
 
-    if not query:
-        await message.reply_text(
-            "❌ Provide song name or YouTube URL."
-        )
-        return
-
-    msg = await message.reply_text(
-        "⏳ Searching song..."
+    query = " ".join(
+        message.command[1:]
     )
 
-    try:
-        results = YoutubeSearch(
-            query,
-            max_results=1
-        ).to_dict()
 
-    except Exception:
-        await msg.edit_text(
-            "❌ Search failed."
+    if not query:
+        return await message.reply_text(
+            "❌ Song name do."
         )
-        return
+
+
+    msg = await message.reply_text(
+        "🔎 Searching..."
+    )
+
+
+    results = YoutubeSearch(
+        query,
+        max_results=1
+    ).to_dict()
 
 
     if not results:
-        await msg.edit_text(
-            "❌ No results found."
+        return await msg.edit_text(
+            "❌ Song nahi mila."
         )
-        return
 
 
-    link = (
+    url = (
         "https://youtube.com"
         + results[0]["url_suffix"]
     )
+
 
     title = results[0]["title"]
 
 
     await msg.edit_text(
-        "🎧 Downloading audio..."
+        "🎧 Downloading..."
     )
 
 
-    file_path = await get_audio_stream(link)
+    file = await get_audio_stream(url)
 
 
-    if message.chat.id in pytgcalls.active_calls:
 
-        position = await put(
-            message.chat.id,
-            file=file_path
-        )
-
-        await msg.edit_text(
-            f"✅ Added to queue #{position}"
-        )
-
-    else:
-
-        await pytgcalls.join_group_call(
-            message.chat.id,
-            AudioPiped(
-                file_path,
-                AudioParameters.from_quality(
-                    AudioQuality.STUDIO
-                )
+    await pytgcalls.join_group_call(
+        message.chat.id,
+        AudioPiped(
+            file,
+            AudioParameters.from_quality(
+                AudioQuality.STUDIO
             )
         )
+    )
 
-        await msg.edit_text(
-            f"🎵 Now Playing:\n{title}"
-        )
+
+    await msg.edit_text(
+        f"🎵 Playing:\n{title}"
+    )
 
 
 
 @Chizuru.on_message(
     filters.command(
-        ["skip", "pause", "resume", "stop"],
+        ["stop"],
         prefixes=["/", "."]
     )
 )
-async def control(_, message: Message):
+async def stop(_, message: Message):
 
-    cmd = message.command[0].lower()
+    await pytgcalls.leave_group_call(
+        message.chat.id
+    )
 
-    chat_id = message.chat.id
-
-
-    if cmd == "skip":
-
-        task_done(chat_id)
-
-
-        if is_empty(chat_id):
-
-            await pytgcalls.leave_group_call(
-                chat_id
-            )
-
-            await message.reply_text(
-                "⏭️ Queue empty."
-            )
-
-        else:
-
-            file = get(chat_id)
-
-            await pytgcalls.change_stream(
-                chat_id,
-                AudioPiped(
-                    file["file"],
-                    AudioParameters.from_quality(
-                        AudioQuality.STUDIO
-                    )
-                )
-            )
-
-            await message.reply_text(
-                "⏭️ Skipped."
-            )
+    await message.reply_text(
+        "⏹ Stopped"
+    )
 
 
-    elif cmd == "pause":
 
-        await pytgcalls.pause_stream(
-            chat_id
-        )
+@Chizuru.on_message(
+    filters.command(
+        ["pause"],
+        prefixes=["/", "."]
+    )
+)
+async def pause(_, message: Message):
 
-        await message.reply_text(
-            "⏸️ Paused."
-        )
+    await pytgcalls.pause_stream(
+        message.chat.id
+    )
 
-
-    elif cmd == "resume":
-
-        await pytgcalls.resume_stream(
-            chat_id
-        )
-
-        await message.reply_text(
-            "▶️ Resumed."
-        )
+    await message.reply_text(
+        "⏸ Paused"
+    )
 
 
-    elif cmd == "stop":
 
-        await pytgcalls.leave_group_call(
-            chat_id
-        )
+@Chizuru.on_message(
+    filters.command(
+        ["resume"],
+        prefixes=["/", "."]
+    )
+)
+async def resume(_, message: Message):
 
-        await message.reply_text(
-            "⏹️ Stopped."
-        )
+    await pytgcalls.resume_stream(
+        message.chat.id
+    )
+
+    await message.reply_text(
+        "▶ Resumed"
+    )
 
 
 
@@ -192,7 +153,6 @@ async def stream_end(
 ):
 
     chat_id = update.chat_id
-
 
     task_done(chat_id)
 
@@ -205,12 +165,12 @@ async def stream_end(
 
     else:
 
-        file = get(chat_id)
+        song = get(chat_id)
 
         await pytgcalls.change_stream(
             chat_id,
             AudioPiped(
-                file["file"],
+                song["file"],
                 AudioParameters.from_quality(
                     AudioQuality.STUDIO
                 )
