@@ -15,19 +15,14 @@ async def play(_, message: Message):
     if not query:
         await message.reply_text("❌ Provide song name or URL.")
         return
-    
     msg = await message.reply_text("⏳ Processing...")
     results = YoutubeSearch(query, max_results=1).to_dict()
     if not results:
         await msg.edit_text("❌ No results found.")
         return
-    
     link = f"https://youtube.com{results[0]['url_suffix']}"
     title = results[0]['title']
-    duration = results[0]['duration']
-    
     file_path = await get_audio_stream(link)
-    
     if pytgcalls.active_calls:
         position = await put(message.chat.id, file=file_path)
         await msg.edit_text(f"✅ Added to queue at #{position}")
@@ -38,32 +33,28 @@ async def play(_, message: Message):
         )
         await msg.edit_text(f"🎵 Now Playing: {title}")
 
-@Chizuru.on_message(filters.command(["skip"], prefixes=["/", "."]))
-async def skip(_, message: Message):
+@Chizuru.on_message(filters.command(["skip", "pause", "resume", "stop"], prefixes=["/", "."]))
+async def control(_, message: Message):
+    cmd = message.command[0].lower()
     chat_id = message.chat.id
-    task_done(chat_id)
-    if is_empty(chat_id):
+    if cmd == "skip":
+        task_done(chat_id)
+        if is_empty(chat_id):
+            await pytgcalls.leave_group_call(chat_id)
+            await message.reply_text("⏭️ Queue empty, leaving.")
+        else:
+            file = get(chat_id)
+            await pytgcalls.change_stream(chat_id, AudioPiped(file["file"]))
+            await message.reply_text("⏭️ Skipped.")
+    elif cmd == "pause":
+        await pytgcalls.pause_stream(chat_id)
+        await message.reply_text("⏸️ Paused.")
+    elif cmd == "resume":
+        await pytgcalls.resume_stream(chat_id)
+        await message.reply_text("▶️ Resumed.")
+    elif cmd == "stop":
         await pytgcalls.leave_group_call(chat_id)
-        await message.reply_text("⏭️ Queue empty, leaving.")
-    else:
-        file = get(chat_id)
-        await pytgcalls.change_stream(chat_id, AudioPiped(file["file"]))
-        await message.reply_text("⏭️ Skipped.")
-
-@Chizuru.on_message(filters.command(["pause"], prefixes=["/", "."]))
-async def pause(_, message: Message):
-    await pytgcalls.pause_stream(message.chat.id)
-    await message.reply_text("⏸️ Paused.")
-
-@Chizuru.on_message(filters.command(["resume"], prefixes=["/", "."]))
-async def resume(_, message: Message):
-    await pytgcalls.resume_stream(message.chat.id)
-    await message.reply_text("▶️ Resumed.")
-
-@Chizuru.on_message(filters.command(["stop"], prefixes=["/", "."]))
-async def stop(_, message: Message):
-    await pytgcalls.leave_group_call(message.chat.id)
-    await message.reply_text("⏹️ Stopped.")
+        await message.reply_text("⏹️ Stopped.")
 
 @pytgcalls.on_stream_end()
 async def on_stream_end(_, update: Update) -> None:
