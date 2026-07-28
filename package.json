@@ -1,8 +1,0 @@
-{
-  "name": "chizuru-music",
-  "version": "1.0.0",
-  "description": "Telegram Music Player Bot",
-  "engines": {
-    "node": "20.x"
-  }
-}
