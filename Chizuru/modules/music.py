@@ -5,7 +5,7 @@ from pyrogram.types import Message
 from youtube_search import YoutubeSearch
 from Chizuru import Chizuru, pytgcalls
 from Chizuru.core.utils import get_audio_stream, put, is_empty, task_done
-from pytgcalls import AudioPiped, AudioQuality, AudioParameters, Update
+from pytgcalls.types import AudioPiped, AudioQuality, AudioParameters, Update
 
 DURATION_LIMIT = 300
 
