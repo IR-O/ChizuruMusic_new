@@ -38,22 +38,19 @@
       "required": true
     },
     "SUDO_USERS": {
-      "description": "Sudo users (space separated)",
+      "description": "Sudo users",
       "required": false
     },
     "DURATION_LIMIT": {
-      "description": "Max song duration in seconds",
+      "description": "Max song duration",
       "value": "300"
     },
     "START_IMG_URL": {
-      "description": "Start image URL",
+      "description": "Start image",
       "value": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg"
     }
   },
   "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    },
     {
       "url": "heroku/python"
     },
