@@ -15,14 +15,10 @@ from Chizuru.core.utils import (
     task_done
 )
 
-from pytgcalls.types import StreamType
-from pytgcalls.types.input_stream import AudioPiped
-from pytgcalls.types.input_stream.quality import HighQualityAudio
-from pytgcalls import StreamEnded
+from pytgcalls.types import AudioStream
 
 
 DURATION_LIMIT = 300
-
 
 
 @Chizuru.on_message(
@@ -40,11 +36,9 @@ async def play(_, message: Message):
             "❌ Song name do."
         )
 
-
     msg = await message.reply_text(
         "🔎 Searching..."
     )
-
 
     try:
         result = YoutubeSearch(
@@ -56,7 +50,6 @@ async def play(_, message: Message):
         return await msg.edit_text(
             "❌ Search error."
         )
-
 
     if not result:
         return await msg.edit_text(
@@ -77,10 +70,7 @@ async def play(_, message: Message):
     )
 
 
-    file_path = await get_audio_stream(
-        link
-    )
-
+    file_path = await get_audio_stream(link)
 
     chat_id = message.chat.id
 
@@ -99,9 +89,8 @@ async def play(_, message: Message):
 
     await pytgcalls.play(
         chat_id,
-        AudioPiped(
-            file_path,
-            HighQualityAudio()
+        AudioStream(
+            file_path
         )
     )
 
@@ -109,7 +98,6 @@ async def play(_, message: Message):
     await msg.edit_text(
         f"🎵 Playing:\n{title}"
     )
-
 
 
 
@@ -127,15 +115,12 @@ async def play(_, message: Message):
 async def controls(_, message: Message):
 
     cmd = message.command[0]
-
     chat_id = message.chat.id
 
 
     if cmd == "pause":
 
-        await pytgcalls.pause(
-            chat_id
-        )
+        await pytgcalls.pause(chat_id)
 
         await message.reply_text(
             "⏸️ Paused"
@@ -144,9 +129,7 @@ async def controls(_, message: Message):
 
     elif cmd == "resume":
 
-        await pytgcalls.resume(
-            chat_id
-        )
+        await pytgcalls.resume(chat_id)
 
         await message.reply_text(
             "▶️ Resumed"
@@ -155,9 +138,7 @@ async def controls(_, message: Message):
 
     elif cmd == "stop":
 
-        await pytgcalls.leave_call(
-            chat_id
-        )
+        await pytgcalls.leave_call(chat_id)
 
         await message.reply_text(
             "⏹️ Stopped"
@@ -171,9 +152,7 @@ async def controls(_, message: Message):
 
         if is_empty(chat_id):
 
-            await pytgcalls.leave_call(
-                chat_id
-            )
+            await pytgcalls.leave_call(chat_id)
 
             return await message.reply_text(
                 "Queue empty"
@@ -185,9 +164,8 @@ async def controls(_, message: Message):
 
         await pytgcalls.play(
             chat_id,
-            AudioPiped(
-                file["file"],
-                HighQualityAudio()
+            AudioStream(
+                file["file"]
             )
         )
 
@@ -198,24 +176,17 @@ async def controls(_, message: Message):
 
 
 
-
 @pytgcalls.on_stream_end()
-async def stream_end(
-    client,
-    update
-):
+async def stream_end(client, update):
 
     chat_id = update.chat_id
-
 
     task_done(chat_id)
 
 
     if is_empty(chat_id):
 
-        await pytgcalls.leave_call(
-            chat_id
-        )
+        await pytgcalls.leave_call(chat_id)
 
     else:
 
@@ -223,8 +194,7 @@ async def stream_end(
 
         await pytgcalls.play(
             chat_id,
-            AudioPiped(
-                file["file"],
-                HighQualityAudio()
+            AudioStream(
+                file["file"]
             )
         )
