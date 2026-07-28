@@ -1,17 +1,30 @@
 import asyncio
 import importlib
-from pyrogram import idle
-from Chizuru import Chizuru, userbot, pytgcalls
-from Chizuru.modules import ALL_MODULES
+import os
 
-async def start():
-    await Chizuru.start()
-    await userbot.start()
-    await pytgcalls.start()
-    for module in ALL_MODULES:
-        importlib.import_module(f"Chizuru.modules.{module}")
-    print("✅ Bot Started Successfully!")
-    await idle()
+from Chizuru import start_services
+
+
+async def main():
+
+    await start_services()
+
+    modules = [
+        f[:-3]
+        for f in os.listdir(
+            "Chizuru/modules"
+        )
+        if f.endswith(".py")
+        and f != "__init__.py"
+    ]
+
+    for module in modules:
+        importlib.import_module(
+            f"Chizuru.modules.{module}"
+        )
+
+    await asyncio.Event().wait()
+
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(start())
+    asyncio.run(main())
