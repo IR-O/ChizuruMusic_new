@@ -1,23 +1,65 @@
 {
-    "name": "Chizuru Music",
-    "description": "A Telegram Music Player Bot",
-    "logo": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg",
-    "keywords": ["python", "telegram", "music", "bot"],
-    "env": {
-        "API_ID": {"description": "Get from my.telegram.org", "required": true},
-        "API_HASH": {"description": "Get from my.telegram.org", "required": true},
-        "BOT_TOKEN": {"description": "Get from @BotFather", "required": true},
-        "SESSION_STRING": {"description": "Pyrogram v2 session", "required": true},
-        "MONGO_URL": {"description": "MongoDB Atlas URL", "required": true},
-        "LOG_GROUP_ID": {"description": "Telegram log group ID", "required": true},
-        "OWNER_ID": {"description": "Your Telegram ID", "required": true},
-        "SUDO_USERS": {"description": "Sudo users (space separated)", "required": false},
-        "DURATION_LIMIT": {"description": "Max song duration in seconds", "value": "300"},
-        "START_IMG_URL": {"description": "Start image URL", "value": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg"}
+  "name": "Chizuru Music",
+  "description": "A Telegram Music Player Bot",
+  "logo": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg",
+  "keywords": [
+    "python",
+    "telegram",
+    "music",
+    "bot"
+  ],
+  "env": {
+    "API_ID": {
+      "description": "Get from my.telegram.org",
+      "required": true
     },
-    "buildpacks": [
-        {"url": "heroku/python"},
-        {"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"}
-    ],
-    "stack": "heroku-20"
+    "API_HASH": {
+      "description": "Get from my.telegram.org",
+      "required": true
+    },
+    "BOT_TOKEN": {
+      "description": "Get from @BotFather",
+      "required": true
+    },
+    "SESSION_STRING": {
+      "description": "Pyrogram v2 session",
+      "required": true
+    },
+    "MONGO_URL": {
+      "description": "MongoDB Atlas URL",
+      "required": true
+    },
+    "LOG_GROUP_ID": {
+      "description": "Telegram log group ID",
+      "required": true
+    },
+    "OWNER_ID": {
+      "description": "Your Telegram ID",
+      "required": true
+    },
+    "SUDO_USERS": {
+      "description": "Sudo users (space separated)",
+      "required": false
+    },
+    "DURATION_LIMIT": {
+      "description": "Max song duration in seconds",
+      "value": "300"
+    },
+    "START_IMG_URL": {
+      "description": "Start image URL",
+      "value": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
+  ],
+  "stack": "heroku-24"
 }
