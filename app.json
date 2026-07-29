@@ -1,49 +1,68 @@
 {
-    "name": "Chizuru Music",
-    "description": "A Telegram Music Player Bot, written in Python with Pyrogram and Py-Tgcalls.",
-    "logo": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg",
-    "keywords": ["python3","telegram","MusicBot","telegram-bot","pyrogram"],
-    "stack": "container",
-    "env": {    
-        "BOT_TOKEN": {
-            "description": "A Bot's token from Botfather",
-            "value": "",
-            "required": true
-        },
-        "MONGO_URL": {
-            "description": "Get a mongodb url from https://cloud.mongodb.com.",
-            "value": "",
-            "required": true
-        },
-        "OWNER_ID": {
-            "description": "The user id of user whom you would like to add as OWNER.",
-            "value": "",
-            "required": true
-        },
-        "SESSION_STRING": {
-            "description": "A Pyrogram v2 String Session.",
-            "value": "",
-            "required": true
-        },
-        "SUDO_USERS": {
-            "description": "Brother Here fill your friends user id ex 12334 23445",
-            "value": "",
-            "required": true
-        }
+  "name": "Chizuru Music",
+  "description": "A modern Telegram Music Bot powered by Pyrogram v2 and Py-TgCalls.",
+  "logo": "https://graph.org/file/5d73d3a4940ea78fbc7f3.jpg",
+  "keywords": [
+    "python",
+    "telegram",
+    "musicbot",
+    "pyrogram",
+    "pytgcalls"
+  ],
+  "stack": "container",
+  "env": {
+    "API_ID": {
+      "description": "Telegram API ID from my.telegram.org",
+      "value": "",
+      "required": true
     },
-    "addons": [
-        "heroku-postgresql"
-    ],
-    "buildpacks": [
-        {
-            "url": "heroku/python"
-        },
-        {
-            "url": "heroku/nodejs"
-        },
-        {
-            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
-        }
-    ]
+    "API_HASH": {
+      "description": "Telegram API HASH from my.telegram.org",
+      "value": "",
+      "required": true
+    },
+    "BOT_TOKEN": {
+      "description": "Bot Token from @BotFather",
+      "value": "",
+      "required": true
+    },
+    "SESSION_STRING": {
+      "description": "Pyrogram v2 String Session",
+      "value": "",
+      "required": true
+    },
+    "MONGO_URL": {
+      "description": "MongoDB Atlas connection string",
+      "value": "",
+      "required": true
+    },
+    "OWNER_ID": {
+      "description": "Telegram User ID of the owner",
+      "value": "",
+      "required": true
+    },
+    "SUDO_USERS": {
+      "description": "Space-separated Telegram User IDs",
+      "value": "",
+      "required": false
+    },
+    "LOG_GROUP_ID": {
+      "description": "Private log group ID (optional)",
+      "value": "",
+      "required": false
+    },
+    "AUTO_LEAVING_ASSISTANT": {
+      "description": "Automatically leave inactive voice chats (True/False)",
+      "value": "True",
+      "required": false
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
+  ]
 }
-
